@@ -7,6 +7,7 @@ import (
 	//	"io/ioutil"
 	"crypto/rand"
 	"errors"
+	"io"
 	"os"
 )
 
@@ -111,13 +112,7 @@ func overwriteFile(f *os.File) error {
 
 	s := fileInfo.Size()
 
-	b, err := RandomBytes(s)
-	if err != nil {
-		return errors.New("Could not retrieve random bytes")
-	}
-
-	_, err = f.Write(b)
-	if err != nil {
+	if _, err := io.CopyN(f, rand.Reader, s); err != nil {
 		return errors.New("Could not write to file")
 	}
 
@@ -130,14 +125,4 @@ func parseArgs(args []string) (string, error) {
 	} else {
 		return args[1], nil
 	}
-}
-
-func RandomBytes(n int64) ([]byte, error) {
-	b := make([]byte, n)
-	_, err := rand.Read(b)
-	if err != nil {
-		return nil, err
-	}
-
-	return b, nil
 }
